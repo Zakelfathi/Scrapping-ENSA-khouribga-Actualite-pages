@@ -11,34 +11,43 @@ article_content = []
 article_publish = []
 article_category = []
 article_link = []
+page=1
 
-#fetch the url
-resultat = requests.get("https://ensak.usms.ac.ma/ensak/category/news/")
+while page <=20:
+    try :
+        #fetch the url
+        resultat = requests.get(f"https://ensak.usms.ac.ma/ensak/category/news/page/{page}/")
 
-#get page content in a variable
-src = resultat.content
+        #get page content in a variable
+        src = resultat.content
 
-#soup object to parse with lxml
-soup = BeautifulSoup(src, "html.parser")
+        #soup object to parse with lxml
+        soup = BeautifulSoup(src, "lxml")
 
-#find elements containing infos we need
-article_titles = soup.find_all("h2",{"class":"entry-title"})
-article_published = soup.find_all("span",{"class":"posted-on"})
-article_categories = soup.find_all("span",{"class":"cat-links"})
+        #find elements containing infos we need
+        article_titles = soup.find_all("h2",{"class":"entry-title"})
+        article_published = soup.find_all("span",{"class":"posted-on"})
+        article_categories = soup.find_all("span",{"class":"cat-links"})
 
 
-#loop over, to extract my needed infos
-for i in range(len(article_categories)):
-    article_title.append(article_titles[i].text)
-    article_category.append((article_categories[i].text))
-    article_publish.append(article_published[i].text)
-    article_link.append(article_titles[i].find("a").attrs['href'])
+        #loop over, to extract my needed infos
+        for i in range(len(article_categories)):
+            article_title.append(article_titles[i].text)
+            article_category.append((article_categories[i].text))
+            article_publish.append(article_published[i].text)
+            article_link.append(article_titles[i].find("a").attrs['href'])
+        
+        page += 1
+    except:
+        print("erreur survenue!!")  
+        break  
+    print("page switch")
 
 for lien in article_link:
     result = requests.get(lien)
     src = resultat.content
-    soup = BeautifulSoup(src, "html.parser")
-    contenu = soup.find("div",{"class":"entry-content"})
+    soup = BeautifulSoup(src, "lxml")
+    contenu = soup.find("div",{"class":"entry-content"}).p
     article_content.append(contenu.text)
 
     print(contenu.text)
